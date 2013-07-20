@@ -14,23 +14,21 @@
  * the License.
  */
 
-package com.example.android.livecubes.cube2;
-
-import com.example.android.livecubes.R;
+package za.co.appceptional.android.paperbandit;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-public class CubeWallpaper2Settings extends PreferenceActivity
+public class PaperBanditSettings extends PreferenceActivity
     implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         getPreferenceManager().setSharedPreferencesName(
-                CubeWallpaper2.SHARED_PREFS_NAME);
-        addPreferencesFromResource(R.xml.cube2_settings);
+                PaperBandit.SHARED_PREFS_NAME);
+        addPreferencesFromResource(R.xml.paperbandit_settings);
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(
                 this);
     }
