@@ -28,7 +28,7 @@ public class PaperBanditSettings extends PreferenceActivity
         super.onCreate(icicle);
         getPreferenceManager().setSharedPreferencesName(
                 PaperBandit.SHARED_PREFS_NAME);
-        addPreferencesFromResource(R.xml.cube2_settings);
+        addPreferencesFromResource(R.xml.paperbandit_settings);
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(
                 this);
     }

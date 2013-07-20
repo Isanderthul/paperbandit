@@ -15,14 +15,13 @@
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        android:title="@string/cube2_settings"
-        android:key="cube2wallpaper_settings">
+        android:title="@string/paperbandit_settings"
+        android:key="paperbanditwallpaper_settings">
 
     <ListPreference
             android:key="cube2_shape"
-            android:title="@string/cube2_settings_title"
-            android:summary="@string/cube2_settings_summary"
-            android:entries="@array/cube2_shapenames"
-            android:entryValues="@array/cube2_shapeprefix" />
+            android:title="@string/paperbandit_settings_title"
+            android:summary="@string/paperbandit_settings_summary"
+ />
 
 </PreferenceScreen>

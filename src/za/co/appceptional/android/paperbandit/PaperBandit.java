@@ -59,15 +59,19 @@ public class PaperBandit extends WallpaperService {
 		private final Handler mHandler = new Handler();
 
 		private final Paint mPaint = new Paint();
-		private final Bitmap mBackground;
+		private Bitmap mFrameDollar;
+		private Bitmap mBackgroundImage = null;
+		private Bitmap mFrameNormal;
+		private Bitmap mFrameMaxBet;
+		private Bitmap mFrameWin;
 		private float mOffset;
 		private float mTouchX = -1;
 		private float mTouchY = -1;
 		private long mStartTime;
-		private float mCenterX;
-		private float mCenterY;
+		private int mWidth;
+		private int mHeight;
 
-		private final Runnable mDrawCube = new Runnable() {
+		private final Runnable mPaperBandit = new Runnable() {
 			public void run() {
 				drawFrame();
 			}
@@ -76,21 +80,13 @@ public class PaperBandit extends WallpaperService {
 		private SharedPreferences mPrefs;
 
 		PaperBanditEngine() {
-            // Create a Paint to draw the lines for our cube
-            final Paint paint = mPaint;
-            mBackground = getImage(R.drawable.wrinkled_paper);
-            paint.setColor(0xffffffff);
-            paint.setAntiAlias(true);
-            paint.setStrokeWidth(2);
-            paint.setStrokeCap(Paint.Cap.ROUND);
-            paint.setStyle(Paint.Style.STROKE);
+			mStartTime = SystemClock.elapsedRealtime();
 
-            mStartTime = SystemClock.elapsedRealtime();
-
-            mPrefs = PaperBandit.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
-            mPrefs.registerOnSharedPreferenceChangeListener(this);
-            onSharedPreferenceChanged(mPrefs, null);
-        }
+			mPrefs = PaperBandit.this
+					.getSharedPreferences(SHARED_PREFS_NAME, 0);
+			mPrefs.registerOnSharedPreferenceChangeListener(this);
+			onSharedPreferenceChanged(mPrefs, null);
+		}
 
 		/**
 		 * Load an image
@@ -116,7 +112,7 @@ public class PaperBandit extends WallpaperService {
 		@Override
 		public void onDestroy() {
 			super.onDestroy();
-			mHandler.removeCallbacks(mDrawCube);
+			mHandler.removeCallbacks(mPaperBandit);
 		}
 
 		@Override
@@ -125,7 +121,7 @@ public class PaperBandit extends WallpaperService {
 			if (visible) {
 				drawFrame();
 			} else {
-				mHandler.removeCallbacks(mDrawCube);
+				mHandler.removeCallbacks(mPaperBandit);
 			}
 		}
 
@@ -133,10 +129,9 @@ public class PaperBandit extends WallpaperService {
 		public void onSurfaceChanged(SurfaceHolder holder, int format,
 				int width, int height) {
 			super.onSurfaceChanged(holder, format, width, height);
-			// store the center of the surface, so we can draw the cube in the
-			// right spot
-			mCenterX = width / 2.0f;
-			mCenterY = height / 2.0f;
+			mWidth = width;
+			mHeight = height;
+			loadImages();
 			drawFrame();
 		}
 
@@ -149,7 +144,38 @@ public class PaperBandit extends WallpaperService {
 		public void onSurfaceDestroyed(SurfaceHolder holder) {
 			super.onSurfaceDestroyed(holder);
 			mVisible = false;
-			mHandler.removeCallbacks(mDrawCube);
+			mHandler.removeCallbacks(mPaperBandit);
+		}
+
+		public void loadImages() {
+			// if (height>width){mBackgroundImage =
+			// getImage(R.drawable.background);}
+			// else {mBackgroundImage = getImage(R.drawable.background);}
+
+			// Debug.out("Dollar Frame");
+			mFrameDollar = getImage(R.drawable.frame_dollar);
+			mFrameDollar = Bitmap.createScaledBitmap(mFrameDollar, mWidth,
+					mHeight, true);
+
+			// Debug.out("Wrinkled Paper");
+			mBackgroundImage = getImage(R.drawable.wrinkled_paper);
+			mBackgroundImage = Bitmap.createScaledBitmap(mBackgroundImage,
+					mWidth, mHeight, true);
+
+			// Debug.out("Normal Frame");
+			mFrameNormal = getImage(R.drawable.frame_normal);
+			mFrameNormal = Bitmap.createScaledBitmap(mFrameNormal, mWidth,
+					mHeight, true);
+
+			// Debug.out("Max Bet Frame");
+			mFrameMaxBet = getImage(R.drawable.frame_max_bet);
+			mFrameMaxBet = Bitmap.createScaledBitmap(mFrameMaxBet, mWidth,
+					mHeight, true);
+
+			// Debug.out("Winning Frame");
+			mFrameWin = getImage(R.drawable.frame_win);
+			mFrameWin = Bitmap.createScaledBitmap(mFrameWin, mWidth, mHeight,
+					true);
 		}
 
 		@Override
@@ -178,7 +204,7 @@ public class PaperBandit extends WallpaperService {
 		/*
 		 * Draw one frame of the animation. This method gets called repeatedly
 		 * by posting a delayed Runnable. You can do any drawing you want in
-		 * here. This example draws a wireframe cube.
+		 * here.
 		 */
 		void drawFrame() {
 			final SurfaceHolder holder = getSurfaceHolder();
@@ -190,6 +216,7 @@ public class PaperBandit extends WallpaperService {
 			try {
 				c = holder.lockCanvas();
 				if (c != null) {
+					drawBackground(c);
 					// draw something
 					drawTouchPoint(c);
 				}
@@ -198,10 +225,14 @@ public class PaperBandit extends WallpaperService {
 					holder.unlockCanvasAndPost(c);
 			}
 
-			mHandler.removeCallbacks(mDrawCube);
+			mHandler.removeCallbacks(mPaperBandit);
 			if (mVisible) {
-				mHandler.postDelayed(mDrawCube, 1000 / 25);
+				mHandler.postDelayed(mPaperBandit, 1000 / 25);
 			}
+		}
+
+		void drawBackground(Canvas c) {
+			c.drawBitmap(mBackgroundImage, 0, 0, null);
 		}
 
 		void drawTouchPoint(Canvas c) {

@@ -24,23 +24,21 @@
     <uses-sdk android:minSdkVersion="7" />
     <uses-feature android:name="android.software.live_wallpaper" />
 
-    <uses-feature android:name="android.software.live_wallpaper" />
-
     <application
         android:label="@string/wallpapers"
         android:icon="@drawable/ic_launcher_wallpaper">
 
         <service
-            android:label="@string/wallpaper_cube2"
+            android:label="@string/wallpaper_name"
             android:name="za.co.appceptional.android.paperbandit.PaperBandit"
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
             </intent-filter>
-            <meta-data android:name="android.service.wallpaper" android:resource="@xml/cube2" />
+            <meta-data android:name="android.service.wallpaper" android:resource="@xml/paperbandit" />
         </service>
         <activity
-            android:label="@string/cube2_settings"
+            android:label="@string/paperbandit_settings"
             android:name="za.co.appceptional.android.paperbandit.PaperBanditSettings"
             android:theme="@android:style/Theme.Light.WallpaperSettings"
             android:exported="true">
