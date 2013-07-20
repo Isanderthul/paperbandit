@@ -21,7 +21,7 @@
     <!-- General -->
     <skip />
     <!-- Application name -->
-    <string name="wallpapers">Example Wallpapers</string>
+    <string name="wallpapers">Paper Bandit</string>
 
     <!-- Wallpaper showing a cube -->
     <string name="wallpaper_cube1">Cube</string>
