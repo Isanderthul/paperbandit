@@ -59,11 +59,13 @@ public class PaperBandit extends WallpaperService {
 		private final Handler mHandler = new Handler();
 
 		private final Paint mPaint = new Paint();
-		private Bitmap mFrameDollar;
-		private Bitmap mBackgroundImage = null;
-		private Bitmap mFrameNormal;
-		private Bitmap mFrameMaxBet;
-		private Bitmap mFrameWin;
+		private CroppedImage mFrameDollar;
+		private CroppedImage mBackgroundImage = null;
+		private CroppedImage mFrameNormal;
+		private CroppedImage mFrameMaxBet;
+		private CroppedImage mFrameWin;
+		private CroppedImage[] mButtons = new CroppedImage[0];
+
 		private float mOffset;
 		private float mTouchX = -1;
 		private float mTouchY = -1;
@@ -152,32 +154,37 @@ public class PaperBandit extends WallpaperService {
 			// getImage(R.drawable.background);}
 			// else {mBackgroundImage = getImage(R.drawable.background);}
 
-			// Debug.out("Dollar Frame");
-			mFrameDollar = getImage(R.drawable.frame_dollar);
-			mFrameDollar = Bitmap.createScaledBitmap(mFrameDollar, mWidth,
-					mHeight, true);
-
 			// Debug.out("Wrinkled Paper");
-			mBackgroundImage = getImage(R.drawable.wrinkled_paper);
-			mBackgroundImage = Bitmap.createScaledBitmap(mBackgroundImage,
-					mWidth, mHeight, true);
+			mBackgroundImage = new CroppedImage(getApplicationContext(),
+					R.drawable.wrinkled_paper, mWidth, mHeight);
+
+			// Debug.out("Dollar Frame");
+			mFrameDollar = new CroppedImage(getApplicationContext(),
+					R.drawable.frame_dollar, mWidth, mHeight);
 
 			// Debug.out("Normal Frame");
-			mFrameNormal = getImage(R.drawable.frame_normal);
-			mFrameNormal = Bitmap.createScaledBitmap(mFrameNormal, mWidth,
-					mHeight, true);
+			mFrameNormal = new CroppedImage(getApplicationContext(),
+					R.drawable.frame_normal, mWidth, mHeight);
 
 			// Debug.out("Max Bet Frame");
-			mFrameMaxBet = getImage(R.drawable.frame_max_bet);
-			mFrameMaxBet = Bitmap.createScaledBitmap(mFrameMaxBet, mWidth,
-					mHeight, true);
+			mFrameMaxBet = new CroppedImage(getApplicationContext(),
+					R.drawable.frame_max_bet, mWidth, mHeight);
 
 			// Debug.out("Winning Frame");
-			mFrameWin = getImage(R.drawable.frame_win);
-			mFrameWin = Bitmap.createScaledBitmap(mFrameWin, mWidth, mHeight,
-					true);
+			mFrameWin = new CroppedImage(getApplicationContext(),
+					R.drawable.frame_win, mWidth, mHeight);
+
+			mButtons = new CroppedImage[] { mFrameDollar, mFrameMaxBet };
 		}
 
+		/*
+		 * This is when the screen is scrolled by the user. Later we will give
+		 * money here. (non-Javadoc)
+		 * 
+		 * @see
+		 * android.service.wallpaper.WallpaperService.Engine#onOffsetsChanged
+		 * (float, float, float, float, int, int)
+		 */
 		@Override
 		public void onOffsetsChanged(float xOffset, float yOffset, float xStep,
 				float yStep, int xPixels, int yPixels) {
@@ -191,9 +198,12 @@ public class PaperBandit extends WallpaperService {
 		 */
 		@Override
 		public void onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
 				mTouchX = event.getX();
 				mTouchY = event.getY();
+
+				int whichButton = CroppedImage.findTouchArea(mButtons, mTouchX,
+						mTouchY);
 			} else {
 				mTouchX = -1;
 				mTouchY = -1;
@@ -216,7 +226,12 @@ public class PaperBandit extends WallpaperService {
 			try {
 				c = holder.lockCanvas();
 				if (c != null) {
-					drawBackground(c);
+					// Draw paper
+					mBackgroundImage.draw(c);
+
+					// Draw buttons
+					mFrameDollar.draw(c);
+
 					// draw something
 					drawTouchPoint(c);
 				}
@@ -229,10 +244,6 @@ public class PaperBandit extends WallpaperService {
 			if (mVisible) {
 				mHandler.postDelayed(mPaperBandit, 1000 / 25);
 			}
-		}
-
-		void drawBackground(Canvas c) {
-			c.drawBitmap(mBackgroundImage, 0, 0, null);
 		}
 
 		void drawTouchPoint(Canvas c) {
