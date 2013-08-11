@@ -76,11 +76,11 @@ public class PaperBandit extends WallpaperService {
 		private CroppedImage mSpinHeart;
 		private CroppedImage mSpinMusic;
 		private CroppedImage mSpinStar;
-		
+
 		private ScrollingImageSet mSpinner1;
 		private ScrollingImageSet mSpinner2;
-		private ScrollingImageSet mSpinner3;		
-		
+		private ScrollingImageSet mSpinner3;
+
 		private float mOffset;
 		private float mTouchX = -1;
 		private float mTouchY = -1;
@@ -171,7 +171,7 @@ public class PaperBandit extends WallpaperService {
 
 			// Debug.out("Wrinkled Paper");
 			mBackgroundImage = new CroppedImage(getApplicationContext(),
-					R.drawable.wrinkled_paper, mWidth, mHeight);
+					R.drawable.wrinkled_paper, mWidth, mHeight, true);
 
 			// Debug.out("Dollar Frame");
 			mFrameDollar = new CroppedImage(getApplicationContext(),
@@ -189,27 +189,33 @@ public class PaperBandit extends WallpaperService {
 			mFrameWin = new CroppedImage(getApplicationContext(),
 					R.drawable.frame_win, mWidth, mHeight);
 
-			mButtons = new CroppedImage[] {mFrameDollar, mFrameMaxBet};
-			
-			mSpinApple = new CroppedImage (getApplicationContext(), R.drawable.paper_apple, mWidth, mHeight);
-			mSpinBanana = new CroppedImage (getApplicationContext(), R.drawable.paper_banana, mWidth, mHeight);
-			mSpinCherries = new CroppedImage (getApplicationContext(), R.drawable.paper_cherries, mWidth, mHeight);
-			mSpinDollar = new CroppedImage (getApplicationContext(), R.drawable.paper_dollar, mWidth, mHeight);
-			mSpinHeart = new CroppedImage (getApplicationContext(), R.drawable.paper_heart, mWidth, mHeight);
-			mSpinMusic = new CroppedImage (getApplicationContext(), R.drawable.paper_music, mWidth, mHeight);
-			mSpinStar = new CroppedImage (getApplicationContext(), R.drawable.paper_star, mWidth, mHeight);
-			
-			mSpinner1 = new ScrollingImageSet(new Bitmap []{
-					mSpinApple.mBitmap,
-					mSpinBanana.mBitmap,
-					mSpinCherries.mBitmap,
-					mSpinDollar.mBitmap,
-					mSpinHeart.mBitmap,
-					mSpinMusic.mBitmap,
-					mSpinStar.mBitmap}, 10, 10, mSpinApple.mBitmap.getHeight() * 3, new int []{0, 1, 2, 3, 4, 5, 6});
-			
+			mButtons = new CroppedImage[] { mFrameDollar, mFrameMaxBet };
+
+			mSpinApple = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_apple);
+			mSpinBanana = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_banana);
+			mSpinCherries = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_cherries);
+			mSpinDollar = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_dollar);
+			mSpinHeart = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_heart);
+			mSpinMusic = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_music);
+			mSpinStar = new CroppedImage(getApplicationContext(),
+					mBackgroundImage, R.drawable.paper_star);
+
+			mSpinner1 = new ScrollingImageSet(mBackgroundImage,
+					new Bitmap[] { mSpinApple.mBitmap, mSpinBanana.mBitmap,
+							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
+							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
+							mSpinStar.mBitmap }, 70, 100,
+					mSpinApple.mBitmap.getHeight() * 3, new int[] { 0, 1, 2, 3,
+							4, 5, 6 });
+
 			mSpinner1.acceleration = 0.0f;
-			mSpinner1.speed = 0.005f;
+			mSpinner1.speed = 0.01f;
 			mSpinner1.position = 0.0f;
 		}
 
@@ -241,28 +247,33 @@ public class PaperBandit extends WallpaperService {
 				int whichButton = CroppedImage.findTouchArea(mButtons, mTouchX,
 						mTouchY);
 
-				//Log.d("PaperBandit", "Event " + event.getX () + ":" + event.getY ());
-				//Log.d("PaperBandit", "Dollar " + mFrameDollar.mLeft + ":" + mFrameDollar.mTop + ":" + mFrameDollar.mWidth + ":" + mFrameDollar.mHeight);
-				
-				switch (whichButton)
-				{
+				// Log.d("PaperBandit", "Event " + event.getX () + ":" +
+				// event.getY ());
+				// Log.d("PaperBandit", "Dollar " + mFrameDollar.mLeft + ":" +
+				// mFrameDollar.mTop + ":" + mFrameDollar.mWidth + ":" +
+				// mFrameDollar.mHeight);
+
+				switch (whichButton) {
 				case 0:
 					mButtonToShow = mFrameDollar;
-					drawFrame ();
-					//Dollar bill clicked
-					Toast.makeText(getApplicationContext (), "Dollar bill clicked", Toast.LENGTH_LONG);
+					drawFrame();
+					// Dollar bill clicked
+					Toast.makeText(getApplicationContext(),
+							"Dollar bill clicked", Toast.LENGTH_LONG);
 					break;
 				case 1:
 					mButtonToShow = mFrameMaxBet;
-					drawFrame ();
-					Toast.makeText(getApplicationContext (), "Max bet clicked", Toast.LENGTH_LONG);
-					//Max bet clicked
+					drawFrame();
+					Toast.makeText(getApplicationContext(), "Max bet clicked",
+							Toast.LENGTH_LONG);
+					// Max bet clicked
 					break;
 				default:
 					mButtonToShow = null;
-					drawFrame ();
-					Toast.makeText(getApplicationContext (), "Frame clicked", Toast.LENGTH_LONG);
-					//Somewhere else clicked
+					drawFrame();
+					Toast.makeText(getApplicationContext(), "Frame clicked",
+							Toast.LENGTH_LONG);
+					// Somewhere else clicked
 				}
 			} else {
 				mTouchX = -1;
@@ -288,17 +299,16 @@ public class PaperBandit extends WallpaperService {
 				if (c != null) {
 					// Draw paper
 					mBackgroundImage.draw(c);
-					
+
 					mFrameNormal.draw(c);
 
-					if (mButtonToShow != null)
-					{
+					if (mButtonToShow != null) {
 						mButtonToShow.draw(c);
 					}
 
-					mSpinner1.move(0.1f);
-					mSpinner1.draw (c);
-					
+					mSpinner1.move(1f);
+					mSpinner1.draw(c);
+
 					// draw something
 					drawTouchPoint(c);
 				}
@@ -320,7 +330,3 @@ public class PaperBandit extends WallpaperService {
 		}
 	}
 }
-
-
-
-

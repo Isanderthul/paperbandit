@@ -12,6 +12,8 @@ public class CroppedImage {
 	int mTop;
 	int mWidth;
 	int mHeight;
+	int originalWidth;
+	int originalHeight;
 	Bitmap mBitmap;
 
 	public CroppedImage(Context context, int resourceId, int scaledWidth,
@@ -19,6 +21,26 @@ public class CroppedImage {
 		this(context, resourceId, scaledWidth, scaledHeight, false);
 	}
 
+	public CroppedImage (Context context, CroppedImage copyScalingFrom, int resourceId)
+	{
+		Bitmap uncropped = getImage(context, resourceId);
+		originalWidth = uncropped.getWidth ();
+		originalHeight = uncropped.getHeight ();
+
+		int scaledWidth = uncropped.getWidth() * copyScalingFrom.mWidth / copyScalingFrom.originalWidth;
+		int scaledHeight = uncropped.getHeight() * copyScalingFrom.mHeight / copyScalingFrom.originalHeight;
+		
+		// Scale the source uncropped image to the full size of the canvas
+		uncropped = Bitmap.createScaledBitmap(uncropped, scaledWidth,
+				scaledHeight, true);
+		
+		mBitmap = uncropped;
+		mWidth = mBitmap.getWidth();
+		mHeight = mBitmap.getHeight();
+		mLeft = 0;
+		mTop = 0;
+	}
+	
 	public CroppedImage(Context context, int resourceId, int scaledWidth,
 			int scaledHeight, boolean skipCropping) {
 		int minx;
@@ -27,6 +49,9 @@ public class CroppedImage {
 		int maxy;
 
 		Bitmap uncropped = getImage(context, resourceId);
+		originalWidth = uncropped.getWidth ();
+		originalHeight = uncropped.getHeight ();
+		
 		// Scale the source uncropped image to the full size of the canvas
 		uncropped = Bitmap.createScaledBitmap(uncropped, scaledWidth,
 				scaledHeight, true);

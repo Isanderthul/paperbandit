@@ -18,13 +18,13 @@ public class ScrollingImageSet
 	float speed; //The speed of this roller set
 	float acceleration; //The acceleration of this roller set
 	
-	public ScrollingImageSet(Bitmap[] sprites, int mLeft, int mTop, int mHeight, int [] indexes)
+	public ScrollingImageSet(CroppedImage imageForScaling, Bitmap[] sprites, int mLeft, int mTop, int mHeight, int [] indexes)
 	{
 		super();
 		this.sprites = sprites;
-		this.mLeft = mLeft;
-		this.mTop = mTop;
-		this.mHeight = mHeight;
+		this.mLeft = mLeft * imageForScaling.mWidth / imageForScaling.originalWidth;
+		this.mTop = mTop * imageForScaling.mHeight / imageForScaling.originalHeight;
+		this.mHeight = mHeight * imageForScaling.mHeight / imageForScaling.originalHeight;
 		this.indexes = indexes;
 		position = 0.0f;
 		speed = 0.0f;
