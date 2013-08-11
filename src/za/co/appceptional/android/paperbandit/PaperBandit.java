@@ -27,6 +27,7 @@ import android.os.SystemClock;
 import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
 /*
  * This animated wallpaper draws a rotating wireframe shape. It is similar to
@@ -65,6 +66,7 @@ public class PaperBandit extends WallpaperService {
 		private CroppedImage mFrameMaxBet;
 		private CroppedImage mFrameWin;
 		private CroppedImage[] mButtons = new CroppedImage[0];
+		private boolean mShowDollarbill;
 
 		private float mOffset;
 		private float mTouchX = -1;
@@ -204,6 +206,21 @@ public class PaperBandit extends WallpaperService {
 
 				int whichButton = CroppedImage.findTouchArea(mButtons, mTouchX,
 						mTouchY);
+				
+				switch (whichButton)
+				{
+				case 0:
+					//Dollar bill clicked
+					Toast.makeText(getApplicationContext (), "Dollar bill clicked", Toast.LENGTH_LONG);
+					break;
+				case 1:
+					Toast.makeText(getApplicationContext (), "Max bet clicked", Toast.LENGTH_LONG);
+					//Max bet clicked
+					break;
+				default:
+					Toast.makeText(getApplicationContext (), "Frame clicked", Toast.LENGTH_LONG);
+					//Somewhere else clicked
+				}
 			} else {
 				mTouchX = -1;
 				mTouchY = -1;
