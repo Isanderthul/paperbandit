@@ -25,6 +25,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.service.wallpaper.WallpaperService;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.widget.Toast;
@@ -66,7 +67,7 @@ public class PaperBandit extends WallpaperService {
 		private CroppedImage mFrameMaxBet;
 		private CroppedImage mFrameWin;
 		private CroppedImage[] mButtons = new CroppedImage[0];
-		private boolean mShowDollarbill;
+		private CroppedImage mButtonToShow = null;
 
 		private float mOffset;
 		private float mTouchX = -1;
@@ -206,18 +207,27 @@ public class PaperBandit extends WallpaperService {
 
 				int whichButton = CroppedImage.findTouchArea(mButtons, mTouchX,
 						mTouchY);
+
+				//Log.d("PaperBandit", "Event " + event.getX () + ":" + event.getY ());
+				//Log.d("PaperBandit", "Dollar " + mFrameDollar.mLeft + ":" + mFrameDollar.mTop + ":" + mFrameDollar.mWidth + ":" + mFrameDollar.mHeight);
 				
 				switch (whichButton)
 				{
 				case 0:
+					mButtonToShow = mFrameDollar;
+					drawFrame ();
 					//Dollar bill clicked
 					Toast.makeText(getApplicationContext (), "Dollar bill clicked", Toast.LENGTH_LONG);
 					break;
 				case 1:
+					mButtonToShow = mFrameMaxBet;
+					drawFrame ();
 					Toast.makeText(getApplicationContext (), "Max bet clicked", Toast.LENGTH_LONG);
 					//Max bet clicked
 					break;
 				default:
+					mButtonToShow = null;
+					drawFrame ();
 					Toast.makeText(getApplicationContext (), "Frame clicked", Toast.LENGTH_LONG);
 					//Somewhere else clicked
 				}
@@ -245,9 +255,13 @@ public class PaperBandit extends WallpaperService {
 				if (c != null) {
 					// Draw paper
 					mBackgroundImage.draw(c);
+					
+					mFrameNormal.draw(c);
 
-					// Draw buttons
-					mFrameDollar.draw(c);
+					if (mButtonToShow != null)
+					{
+						mButtonToShow.draw(c);
+					}
 
 					// draw something
 					drawTouchPoint(c);
@@ -270,3 +284,7 @@ public class PaperBandit extends WallpaperService {
 		}
 	}
 }
+
+
+
+

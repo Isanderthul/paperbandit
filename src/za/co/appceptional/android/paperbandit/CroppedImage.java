@@ -5,14 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.util.Log;
 
 public class CroppedImage
 {
-	private int mLeft;
-	private int mTop;
-	private int mWidth;
-	private int mHeight;
-	private Bitmap mBitmap;
+	int mLeft;
+	int mTop;
+	int mWidth;
+	int mHeight;
+	Bitmap mBitmap;
 	
 	public CroppedImage (Context context, int resourceId, int scaledWidth, int scaledHeight)
 	{
@@ -67,7 +68,7 @@ public class CroppedImage
 		if (x < mLeft) return false;
 		if (y < mTop) return false;
 		if (x >= (mLeft + mBitmap.getWidth ())) return false;
-		if (y >= (mLeft + mBitmap.getHeight ())) return false;
+		if (y >= (mTop + mBitmap.getHeight ())) return false;
 		
 		/* If code reaches here, then the point is on the bitmap.
 		 * Make x & y relative to the top-left of the bitmap itself.
@@ -78,6 +79,8 @@ public class CroppedImage
 		
 		int alpha = Color.alpha (mBitmap.getPixel((int)x, (int)y));
 		
+		//Log.d("CroppedImage", "Alpha : " + alpha);
+
 		return (alpha != 0);
 	}
 	
