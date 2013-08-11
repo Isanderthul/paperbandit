@@ -69,6 +69,18 @@ public class PaperBandit extends WallpaperService {
 		private CroppedImage[] mButtons = new CroppedImage[0];
 		private CroppedImage mButtonToShow = null;
 
+		private CroppedImage mSpinApple;
+		private CroppedImage mSpinBanana;
+		private CroppedImage mSpinCherries;
+		private CroppedImage mSpinDollar;
+		private CroppedImage mSpinHeart;
+		private CroppedImage mSpinMusic;
+		private CroppedImage mSpinStar;
+		
+		private ScrollingImageSet mSpinner1;
+		private ScrollingImageSet mSpinner2;
+		private ScrollingImageSet mSpinner3;		
+		
 		private float mOffset;
 		private float mTouchX = -1;
 		private float mTouchY = -1;
@@ -177,7 +189,28 @@ public class PaperBandit extends WallpaperService {
 			mFrameWin = new CroppedImage(getApplicationContext(),
 					R.drawable.frame_win, mWidth, mHeight);
 
-			mButtons = new CroppedImage[] { mFrameDollar, mFrameMaxBet };
+			mButtons = new CroppedImage[] {mFrameDollar, mFrameMaxBet};
+			
+			mSpinApple = new CroppedImage (getApplicationContext(), R.drawable.paper_apple, mWidth, mHeight);
+			mSpinBanana = new CroppedImage (getApplicationContext(), R.drawable.paper_banana, mWidth, mHeight);
+			mSpinCherries = new CroppedImage (getApplicationContext(), R.drawable.paper_cherries, mWidth, mHeight);
+			mSpinDollar = new CroppedImage (getApplicationContext(), R.drawable.paper_dollar, mWidth, mHeight);
+			mSpinHeart = new CroppedImage (getApplicationContext(), R.drawable.paper_heart, mWidth, mHeight);
+			mSpinMusic = new CroppedImage (getApplicationContext(), R.drawable.paper_music, mWidth, mHeight);
+			mSpinStar = new CroppedImage (getApplicationContext(), R.drawable.paper_star, mWidth, mHeight);
+			
+			mSpinner1 = new ScrollingImageSet(new Bitmap []{
+					mSpinApple.mBitmap,
+					mSpinBanana.mBitmap,
+					mSpinCherries.mBitmap,
+					mSpinDollar.mBitmap,
+					mSpinHeart.mBitmap,
+					mSpinMusic.mBitmap,
+					mSpinStar.mBitmap}, 10, 10, mSpinApple.mBitmap.getHeight() * 3, new int []{0, 1, 2, 3, 4, 5, 6});
+			
+			mSpinner1.acceleration = 0.0f;
+			mSpinner1.speed = 0.005f;
+			mSpinner1.position = 0.0f;
 		}
 
 		/*
@@ -263,6 +296,9 @@ public class PaperBandit extends WallpaperService {
 						mButtonToShow.draw(c);
 					}
 
+					mSpinner1.move(0.1f);
+					mSpinner1.draw (c);
+					
 					// draw something
 					drawTouchPoint(c);
 				}

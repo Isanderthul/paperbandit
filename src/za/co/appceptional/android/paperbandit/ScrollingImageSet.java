@@ -26,6 +26,9 @@ public class ScrollingImageSet
 		this.mTop = mTop;
 		this.mHeight = mHeight;
 		this.indexes = indexes;
+		position = 0.0f;
+		speed = 0.0f;
+		acceleration = 0.0f;
 	}
 	
 	//Work backwards to see what speed the system should have started at to attain the correct end position
