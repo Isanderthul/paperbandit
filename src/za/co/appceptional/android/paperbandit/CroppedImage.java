@@ -16,17 +16,19 @@ public class CroppedImage {
 	int originalHeight;
 	Bitmap mBitmap;
 
-	public CroppedImage(Context context, int resourceId, int scaledWidth,
+	public CroppedImage(String debugName, Context context, int resourceId, int scaledWidth,
 			int scaledHeight) {
-		this(context, resourceId, scaledWidth, scaledHeight, false);
+		this(debugName, context, resourceId, scaledWidth, scaledHeight, false);
 	}
 
-	public CroppedImage (Context context, CroppedImage copyScalingFrom, int resourceId)
+	public CroppedImage (String debugName, Context context, CroppedImage copyScalingFrom, int resourceId)
 	{
 		Bitmap uncropped = getImage(context, resourceId);
 		originalWidth = uncropped.getWidth ();
 		originalHeight = uncropped.getHeight ();
 
+		Log.d ("CroppedImage", debugName + " ow:" + originalWidth + ", oh:" + originalHeight);
+		
 		int scaledWidth = uncropped.getWidth() * copyScalingFrom.mWidth / copyScalingFrom.originalWidth;
 		int scaledHeight = uncropped.getHeight() * copyScalingFrom.mHeight / copyScalingFrom.originalHeight;
 		
@@ -41,7 +43,7 @@ public class CroppedImage {
 		mTop = 0;
 	}
 	
-	public CroppedImage(Context context, int resourceId, int scaledWidth,
+	public CroppedImage(String debugName, Context context, int resourceId, int scaledWidth,
 			int scaledHeight, boolean skipCropping) {
 		int minx;
 		int miny;
@@ -51,7 +53,9 @@ public class CroppedImage {
 		Bitmap uncropped = getImage(context, resourceId);
 		originalWidth = uncropped.getWidth ();
 		originalHeight = uncropped.getHeight ();
-		
+
+		Log.d ("CroppedImage", debugName + " ow:" + originalWidth + ", oh:" + originalHeight);
+				
 		// Scale the source uncropped image to the full size of the canvas
 		uncropped = Bitmap.createScaledBitmap(uncropped, scaledWidth,
 				scaledHeight, true);
@@ -139,5 +143,10 @@ public class CroppedImage {
 
 	public void draw(Canvas c) {
 		c.drawBitmap(mBitmap, mLeft, mTop, null);
+	}
+	
+	public void debug (String name)
+	{
+		Log.d("CroppedImage", name + " : " + mLeft + "," + mTop + "," + mWidth + "," + mHeight);
 	}
 }

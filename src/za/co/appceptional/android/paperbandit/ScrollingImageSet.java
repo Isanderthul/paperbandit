@@ -4,7 +4,10 @@ import java.util.Random;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 public class ScrollingImageSet
 {
@@ -24,11 +27,16 @@ public class ScrollingImageSet
 		this.sprites = sprites;
 		this.mLeft = mLeft * imageForScaling.mWidth / imageForScaling.originalWidth;
 		this.mTop = mTop * imageForScaling.mHeight / imageForScaling.originalHeight;
-		this.mHeight = mHeight * imageForScaling.mHeight / imageForScaling.originalHeight;
+		this.mHeight = mHeight;
 		this.indexes = indexes;
 		position = 0.0f;
 		speed = 0.0f;
 		acceleration = 0.0f;
+		
+		Log.d ("ScrollingImageSet", "wo:" + imageForScaling.originalWidth + ", wn:" + imageForScaling.mWidth);
+		Log.d ("ScrollingImageSet", "ho:" + imageForScaling.originalHeight + ", hn:" + imageForScaling.mHeight);
+		Log.d ("ScrollingImageSet", "lo:" + mLeft + ", ln:" + this.mLeft);
+		Log.d ("ScrollingImageSet", "to:" + mTop + ", tn:" + this.mTop);
 	}
 	
 	//Work backwards to see what speed the system should have started at to attain the correct end position
@@ -106,5 +114,9 @@ public class ScrollingImageSet
 			//Start drawing from the top of this sprite
 			startY = 0;
 		}
+		
+		Paint p = new Paint ();
+		p.setColor(Color.RED);
+		c.drawLine(mLeft, mTop, mLeft + current_sprite.getWidth(), mTop + mHeight, p);
 	}
 }
