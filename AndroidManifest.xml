@@ -24,19 +24,19 @@
     <uses-feature android:name="android.software.live_wallpaper" />
 
     <application
-        android:icon="@drawable/icon"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/wallpapers" >
         <service
             android:name="za.co.appceptional.android.paperbandit.PaperBandit"
             android:label="@string/wallpaper_name"
-            android:icon="@drawable/icon"
+            android:icon="@drawable/ic_launcher"
             android:permission="android.permission.BIND_WALLPAPER" >
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
             </intent-filter>
 
             <meta-data
-                android:name="android.service.wallpaper"
+                android:name="android.service.wallpaper"               
                 android:resource="@xml/paperbandit" />
         </service>
 

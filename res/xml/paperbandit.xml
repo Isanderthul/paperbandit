@@ -21,4 +21,6 @@
 
 <wallpaper xmlns:android="http://schemas.android.com/apk/res/android"
         android:settingsActivity="za.co.appceptional.android.paperbandit.PaperBanditSettings"
+        android:thumbnail="@drawable/ic_launcher"
+        android:description="@string/description"
 />
