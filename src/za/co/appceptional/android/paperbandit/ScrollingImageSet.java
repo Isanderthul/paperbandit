@@ -37,17 +37,25 @@ public class ScrollingImageSet
 		this.mTop = mTop * imageForScaling.mHeight / imageForScaling.originalHeight;
 		this.mHeight = mHeight;
 		this.indexes = indexes;
+
+		Log.d ("ScrollingImageSet", "mLeft:" + mLeft);
+		Log.d ("ScrollingImageSet", "mW:" + imageForScaling.mWidth);
+		Log.d ("ScrollingImageSet", "moW:" + imageForScaling.originalWidth);
+		Log.d ("ScrollingImageSet", "t.mLeft:" + this.mLeft);
+
 		position = 0.0f;
 		speed = 0.0f;
 		acceleration = 0.0f;
 		shown_sprites = mHeight / sprites [0].getHeight ();
 		middle_sprite = (shown_sprites - 1) / 2;
 		
+		/*
 		Log.d ("ScrollingImageSet", "ss:" + shown_sprites);
 		Log.d ("ScrollingImageSet", "wo:" + imageForScaling.originalWidth + ", wn:" + imageForScaling.mWidth);
 		Log.d ("ScrollingImageSet", "ho:" + imageForScaling.originalHeight + ", hn:" + imageForScaling.mHeight);
 		Log.d ("ScrollingImageSet", "lo:" + mLeft + ", ln:" + this.mLeft);
 		Log.d ("ScrollingImageSet", "to:" + mTop + ", tn:" + this.mTop);
+		*/
 	}
 	
 	//Work backwards to see what speed the system should have started at to attain the correct end position
@@ -100,10 +108,12 @@ public class ScrollingImageSet
 			snap_counter = snap_frames;
 			acceleration = 0;
 
+			/*
 			Log.d("ScrollingImageSet", "pos:" + position);
 			Log.d("ScrollingImageSet", "ds:" + desired_sprite);
 			Log.d("ScrollingImageSet", "focc:" + fraction_of_complete_sprite);
 			Log.d("ScrollingImageSet", "dfdp:" + distance_from_desired_position);
+			*/
 		} else if (acceleration == 0.0f)
 		{	//Snapping to an integer
 			if (snap_counter > 0)

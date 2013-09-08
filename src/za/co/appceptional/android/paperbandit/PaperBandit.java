@@ -67,6 +67,7 @@ public class PaperBandit extends WallpaperService {
 			SharedPreferences.OnSharedPreferenceChangeListener
 	{
 		private final Handler mHandler = new Handler();
+		private boolean fix_rotation;
 
 		private final Paint mPaint = new Paint();
 		private CroppedImage mFrameDollar;
@@ -172,6 +173,15 @@ public class PaperBandit extends WallpaperService {
 			super.onSurfaceChanged(holder, format, width, height);
 			mWidth = width;
 			mHeight = height;
+			if (mHeight < mWidth)
+			{
+				fix_rotation = true;
+				mWidth = height;
+				mHeight = width;
+			} else
+			{
+				fix_rotation = false;
+			}
 			loadImages();
 			state = BanditState.WAITING;
 			drawFrame();
@@ -298,9 +308,16 @@ public class PaperBandit extends WallpaperService {
 		{
 			if (event.getAction() == MotionEvent.ACTION_DOWN)
 			{
-				mTouchX = event.getX();
-				mTouchY = event.getY();
-
+				if (fix_rotation)
+				{
+					mTouchY = event.getX();
+					mTouchX = mWidth - event.getY();
+				} else
+				{
+					mTouchX = event.getX();
+					mTouchY = event.getY();
+				}
+				
 				int whichButton = CroppedImage.findTouchArea(mButtons, mTouchX,
 						mTouchY);
 
@@ -331,10 +348,10 @@ public class PaperBandit extends WallpaperService {
 					mSpinner1.acceleration = -0.01f;
 					
 					mSpinner2.speed = 0.6f + (float)Math.random() / 4;
-					mSpinner2.acceleration = -0.01f;
+					mSpinner2.acceleration = -0.009f;
 					
 					mSpinner3.speed = 0.5f + (float)Math.random() / 4;
-					mSpinner3.acceleration = -0.01f;
+					mSpinner3.acceleration = -0.008f;
 					
 					state = BanditState.SPINNING;
 				}
@@ -357,6 +374,13 @@ public class PaperBandit extends WallpaperService {
 			try {
 				c = holder.lockCanvas();
 				if (c != null) {
+					c.save(Canvas.MATRIX_SAVE_FLAG);
+					if (fix_rotation)
+					{
+						c.translate (0, mWidth);
+						c.rotate(-90, 0, 0);
+					}
+					
 					// Draw paper
 					mBackgroundImage.draw(c);
 					
@@ -427,10 +451,11 @@ public class PaperBandit extends WallpaperService {
 					if (mButtonToShow != null) {
 						mButtonToShow.draw(c);
 					}
-
-
+					
 					// draw something
-					//drawTouchPoint(c);
+					drawTouchPoint(c);
+					
+					c.restore();
 				}
 			} finally {
 				if (c != null)
@@ -445,7 +470,13 @@ public class PaperBandit extends WallpaperService {
 
 		void drawTouchPoint(Canvas c) {
 			if (mTouchX >= 0 && mTouchY >= 0) {
-				c.drawCircle(mTouchX, mTouchY, 80, mPaint);
+				if (fix_rotation)
+				{
+					c.drawCircle(mTouchY, mTouchX, 10, mPaint);
+				} else
+				{
+					c.drawCircle(mTouchX, mTouchY, 10, mPaint);
+				}
 			}
 		}
 	}
