@@ -453,7 +453,7 @@ public class PaperBandit extends WallpaperService {
 					}
 					
 					// draw something
-					drawTouchPoint(c);
+					//drawTouchPoint(c);
 					
 					c.restore();
 				}
