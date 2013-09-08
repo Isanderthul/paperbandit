@@ -211,13 +211,36 @@ public class PaperBandit extends WallpaperService {
 					new Bitmap[] { mSpinApple.mBitmap, mSpinBanana.mBitmap,
 							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
 							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
-							mSpinStar.mBitmap }, 119, 162,
-					mSpinApple.mBitmap.getHeight() * 3, new int[] { 0, 1, 2, 3,
+							mSpinStar.mBitmap }, 100, 40,
+					mSpinApple.mBitmap.getHeight() * 5, new int[] { 0, 1, 2, 3,
 							4, 5, 6 });
 
 			mSpinner1.acceleration = 0.0f;
-			mSpinner1.speed = 0.01f;
+			mSpinner1.speed = 0.0f;
 			mSpinner1.position = 0.0f;
+
+			mSpinner2 = new ScrollingImageSet(mBackgroundImage,
+					new Bitmap[] { mSpinApple.mBitmap, mSpinBanana.mBitmap,
+							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
+							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
+							mSpinStar.mBitmap }, 200, 40,
+					mSpinApple.mBitmap.getHeight() * 5, new int[] { 4, 2, 6, 3,
+							5, 1, 0 });
+
+			mSpinner2.acceleration = 0.0f;
+			mSpinner2.speed = 0.0f;
+			mSpinner2.position = 1.0f;
+
+			mSpinner3 = new ScrollingImageSet(mBackgroundImage,
+					new Bitmap[] { mSpinApple.mBitmap, mSpinBanana.mBitmap,
+							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
+							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
+							mSpinStar.mBitmap }, 300, 40,
+					mSpinApple.mBitmap.getHeight() * 5, new int[] { 6, 5, 4, 3, 2, 1, 0});
+
+			mSpinner3.acceleration = 0.0f;
+			mSpinner3.speed = 0.0f;
+			mSpinner3.position = 2.0f;
 		}
 
 		/*
@@ -261,6 +284,17 @@ public class PaperBandit extends WallpaperService {
 					// Dollar bill clicked
 					Toast.makeText(getApplicationContext(),
 							"Dollar bill clicked", Toast.LENGTH_LONG);
+					
+					mSpinner1.speed = 0.7f;
+					mSpinner1.acceleration = -0.01f;
+					
+					mSpinner2.speed = 0.6f;
+					mSpinner2.acceleration = -0.01f;
+					
+					mSpinner3.speed = 0.5f;
+					mSpinner3.acceleration = -0.01f;
+					
+					
 					break;
 				case 1:
 					mButtonToShow = mFrameMaxBet;
@@ -300,15 +334,20 @@ public class PaperBandit extends WallpaperService {
 				if (c != null) {
 					// Draw paper
 					mBackgroundImage.draw(c);
+					
+					mSpinner1.move_to_stop (1f);
+					mSpinner2.move_to_stop (1f);
+					mSpinner3.move_to_stop (1f);
+					mSpinner1.draw(c);
+					mSpinner2.draw(c);
+					mSpinner3.draw(c);
 
 					mFrameNormal.draw(c);
-
+					
 					if (mButtonToShow != null) {
 						mButtonToShow.draw(c);
 					}
 
-					mSpinner1.move(1f);
-					mSpinner1.draw(c);
 
 					// draw something
 					//drawTouchPoint(c);

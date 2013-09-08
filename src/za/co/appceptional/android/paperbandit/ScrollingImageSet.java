@@ -16,10 +16,17 @@ public class ScrollingImageSet
 	int mTop;	//The top co-ordinate of the window to display (not used at all in calculations)
 	int mHeight; //The height of the window to display - used in calculations
 	int [] indexes;	//The actual value of the image in the different positions
+	int shown_sprites;
+	int middle_sprite;
 	
 	float position; //The current value of this roller set
 	float speed; //The speed of this roller set
 	float acceleration; //The acceleration of this roller set
+	int desired_sprite;
+	
+	int snap_frames = 10;
+	int snap_counter;
+	
 	
 	public ScrollingImageSet(CroppedImage imageForScaling, Bitmap[] sprites, int mLeft, int mTop, int mHeight, int [] indexes)
 	{
@@ -32,6 +39,8 @@ public class ScrollingImageSet
 		position = 0.0f;
 		speed = 0.0f;
 		acceleration = 0.0f;
+		shown_sprites = mHeight / sprites [0].getHeight ();
+		middle_sprite = (shown_sprites - 1) / 2;
 		
 		Log.d ("ScrollingImageSet", "wo:" + imageForScaling.originalWidth + ", wn:" + imageForScaling.mWidth);
 		Log.d ("ScrollingImageSet", "ho:" + imageForScaling.originalHeight + ", hn:" + imageForScaling.mHeight);
@@ -60,6 +69,59 @@ public class ScrollingImageSet
 		this.acceleration = acceleration;
 	}
 	
+	public void move_to_stop (float change_in_time)
+	{
+		speed += acceleration * change_in_time;
+		
+		//Check for too slow mode
+		if (((acceleration < 0.0f) && (speed < 0.0f)) || ((acceleration > 0.0f) && (speed > 0.0f)))
+		{	//Spinners changed direction
+			//Calculate snap-to direction
+			float sprite_height = sprites [0].getHeight ();
+			
+			float fraction_of_complete_sprite = (position - (float)Math.floor (position));
+			desired_sprite = (int)Math.round (fraction_of_complete_sprite);
+			float distance_from_desired_position = desired_sprite - fraction_of_complete_sprite;
+
+			//Attain a perfect row positioning within 10 frames
+			speed = (distance_from_desired_position) / snap_frames;
+			snap_counter = snap_frames;
+			acceleration = 0;
+
+			/*
+			Log.d("ScrollingImageSet", "pos" + position);
+			Log.d("ScrollingImageSet", "focc" + fraction_of_complete_sprite);
+			Log.d("ScrollingImageSet", "dfdp" + distance_from_desired_position);
+			*/
+		} else if (acceleration == 0.0f)
+		{	//Snapping to an integer
+			if (snap_counter > 0)
+			{
+				--snap_counter;
+			}
+			if (snap_counter == 0)
+			{
+				speed = 0.0f;
+			}
+		}
+		
+		position += speed * change_in_time;
+	}
+
+	public int sprite_from_middle (int distance)
+	{
+		int row = middle_sprite + distance;
+		if (row < 0) return -1;
+		if (row >= shown_sprites) return -1;
+		
+		return indexes [row];
+	}
+	
+	public boolean is_stopped ()
+	{
+		return ((speed == 0.0f) && (acceleration == 0.0f));
+	}
+	
 	public void move (float change_in_time)
 	{
 		speed += acceleration * change_in_time;
@@ -83,7 +145,7 @@ public class ScrollingImageSet
 		
 		//only display the applicable bottom portion of the sprite
 		sprite_num = (int)Math.floor(position);
-		current_sprite = sprites [sprite_num];
+		current_sprite = sprites [indexes [sprite_num]];
 		float frac = (position - sprite_num);
 		startY = (int)(current_sprite.getHeight() * frac);
 		
@@ -110,13 +172,16 @@ public class ScrollingImageSet
 			++sprite_num;
 			//If we hit the end of the list start again at the beginning
 			if (sprite_num == sprites.length) sprite_num = 0;
-			current_sprite = sprites [sprite_num];
+			current_sprite = sprites [indexes [sprite_num]];
 			//Start drawing from the top of this sprite
 			startY = 0;
 		}
 		
+		/*
+		 *Draw a red line to show the location of things to be drawn
 		Paint p = new Paint ();
 		p.setColor(Color.RED);
 		c.drawLine(mLeft, mTop, mLeft + current_sprite.getWidth(), mTop + mHeight, p);
+		*/
 	}
 }
