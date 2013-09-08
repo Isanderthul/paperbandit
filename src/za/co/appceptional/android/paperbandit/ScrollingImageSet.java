@@ -1,5 +1,6 @@
 package za.co.appceptional.android.paperbandit;
 
+import java.util.Currency;
 import java.util.Random;
 
 import android.graphics.Bitmap;
@@ -42,6 +43,7 @@ public class ScrollingImageSet
 		shown_sprites = mHeight / sprites [0].getHeight ();
 		middle_sprite = (shown_sprites - 1) / 2;
 		
+		Log.d ("ScrollingImageSet", "ss:" + shown_sprites);
 		Log.d ("ScrollingImageSet", "wo:" + imageForScaling.originalWidth + ", wn:" + imageForScaling.mWidth);
 		Log.d ("ScrollingImageSet", "ho:" + imageForScaling.originalHeight + ", hn:" + imageForScaling.mHeight);
 		Log.d ("ScrollingImageSet", "lo:" + mLeft + ", ln:" + this.mLeft);
@@ -71,6 +73,7 @@ public class ScrollingImageSet
 	
 	public void move_to_stop (float change_in_time)
 	{
+		float distance_from_desired_position;
 		speed += acceleration * change_in_time;
 		
 		//Check for too slow mode
@@ -79,20 +82,28 @@ public class ScrollingImageSet
 			//Calculate snap-to direction
 			float sprite_height = sprites [0].getHeight ();
 			
-			float fraction_of_complete_sprite = (position - (float)Math.floor (position));
-			desired_sprite = (int)Math.round (fraction_of_complete_sprite);
-			float distance_from_desired_position = desired_sprite - fraction_of_complete_sprite;
+			int base_sprite = (int)Math.floor (position);
+			
+			float fraction_of_complete_sprite = (position - base_sprite);
+			if (fraction_of_complete_sprite >= 0.5)
+			{	//Snap forwards
+				desired_sprite = base_sprite + 1;
+				distance_from_desired_position = 1-fraction_of_complete_sprite;
+			} else
+			{	//Snap backwards
+				desired_sprite = base_sprite;
+				distance_from_desired_position = -fraction_of_complete_sprite;
+			}
 
 			//Attain a perfect row positioning within 10 frames
 			speed = (distance_from_desired_position) / snap_frames;
 			snap_counter = snap_frames;
 			acceleration = 0;
 
-			/*
-			Log.d("ScrollingImageSet", "pos" + position);
-			Log.d("ScrollingImageSet", "focc" + fraction_of_complete_sprite);
-			Log.d("ScrollingImageSet", "dfdp" + distance_from_desired_position);
-			*/
+			Log.d("ScrollingImageSet", "pos:" + position);
+			Log.d("ScrollingImageSet", "ds:" + desired_sprite);
+			Log.d("ScrollingImageSet", "focc:" + fraction_of_complete_sprite);
+			Log.d("ScrollingImageSet", "dfdp:" + distance_from_desired_position);
 		} else if (acceleration == 0.0f)
 		{	//Snapping to an integer
 			if (snap_counter > 0)
@@ -110,16 +121,14 @@ public class ScrollingImageSet
 
 	public int sprite_from_middle (int distance)
 	{
-		int row = middle_sprite + distance;
-		if (row < 0) return -1;
-		if (row >= shown_sprites) return -1;
+		int row = (middle_sprite + distance + desired_sprite) % sprites.length;
 		
 		return indexes [row];
 	}
 	
 	public boolean is_stopped ()
 	{
-		return ((speed == 0.0f) && (acceleration == 0.0f));
+		return ((speed == 0.0f) && (acceleration == 0.0f) && (snap_counter == 0));
 	}
 	
 	public void move (float change_in_time)

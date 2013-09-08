@@ -25,6 +25,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.service.wallpaper.WallpaperService;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -54,10 +55,17 @@ public class PaperBandit extends WallpaperService {
 	public Engine onCreateEngine() {
 		return new PaperBanditEngine();
 	}
-
+	
+	enum BanditState
+	{
+		WAITING,
+		SPINNING,
+		WINNINGS	
+	}
+	
 	class PaperBanditEngine extends Engine implements
-			SharedPreferences.OnSharedPreferenceChangeListener {
-
+			SharedPreferences.OnSharedPreferenceChangeListener
+	{
 		private final Handler mHandler = new Handler();
 
 		private final Paint mPaint = new Paint();
@@ -76,10 +84,17 @@ public class PaperBandit extends WallpaperService {
 		private CroppedImage mSpinHeart;
 		private CroppedImage mSpinMusic;
 		private CroppedImage mSpinStar;
+		
+		private CroppedImage mWin1;
+		private CroppedImage mWin2;
+		private CroppedImage mWin4;
+		private CroppedImage mWin8;
+		private CroppedImage mWin16;
 
 		private ScrollingImageSet mSpinner1;
 		private ScrollingImageSet mSpinner2;
 		private ScrollingImageSet mSpinner3;
+		private ScrollingImageSet [] mAllSpinners;
 
 		private float mOffset;
 		private float mTouchX = -1;
@@ -88,6 +103,14 @@ public class PaperBandit extends WallpaperService {
 		private int mWidth;
 		private int mHeight;
 
+		private BanditState state;
+		private int bet;
+		private int winnings;
+		private static final int FLASH_TOTAL_FRAMES = 100;
+		private static final int FLASH_FRAMES_ON = 4;
+		private static final int FLASH_FRAMES_OFF = 2;
+		private int win_flash_counter;
+		
 		private final Runnable mPaperBandit = new Runnable() {
 			public void run() {
 				drawFrame();
@@ -96,7 +119,8 @@ public class PaperBandit extends WallpaperService {
 		private boolean mVisible;
 		private SharedPreferences mPrefs;
 
-		PaperBanditEngine() {
+		PaperBanditEngine() 
+		{
 			mStartTime = SystemClock.elapsedRealtime();
 
 			mPrefs = PaperBandit.this
@@ -149,6 +173,7 @@ public class PaperBandit extends WallpaperService {
 			mWidth = width;
 			mHeight = height;
 			loadImages();
+			state = BanditState.WAITING;
 			drawFrame();
 		}
 
@@ -207,13 +232,18 @@ public class PaperBandit extends WallpaperService {
 			mSpinStar = new CroppedImage("paper_star", getApplicationContext(),
 					mBackgroundImage, R.drawable.paper_star);
 
+			mWin1 = new CroppedImage ("win_1", getApplicationContext(), mBackgroundImage, R.drawable.win_1);
+			mWin2 = new CroppedImage ("win_2", getApplicationContext(), mBackgroundImage, R.drawable.win_2);
+			mWin4 = new CroppedImage ("win_4", getApplicationContext(), mBackgroundImage, R.drawable.win_4);
+			mWin8 = new CroppedImage ("win_8", getApplicationContext(), mBackgroundImage, R.drawable.win_8);
+			mWin16 = new CroppedImage ("win_16", getApplicationContext(), mBackgroundImage, R.drawable.win_16);
+			
 			mSpinner1 = new ScrollingImageSet(mBackgroundImage,
 					new Bitmap[] { mSpinApple.mBitmap, mSpinBanana.mBitmap,
 							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
 							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
 							mSpinStar.mBitmap }, 100, 40,
-					mSpinApple.mBitmap.getHeight() * 5, new int[] { 0, 1, 2, 3,
-							4, 5, 6 });
+					mSpinApple.mBitmap.getHeight() * 5, new int[] { 0, 1, 2, 3, 4, 5, 6 });
 
 			mSpinner1.acceleration = 0.0f;
 			mSpinner1.speed = 0.0f;
@@ -224,23 +254,24 @@ public class PaperBandit extends WallpaperService {
 							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
 							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
 							mSpinStar.mBitmap }, 200, 40,
-					mSpinApple.mBitmap.getHeight() * 5, new int[] { 4, 2, 6, 3,
-							5, 1, 0 });
+					mSpinApple.mBitmap.getHeight() * 5, new int[] { 2, 5, 3, 6, 4, 1, 0});
 
 			mSpinner2.acceleration = 0.0f;
 			mSpinner2.speed = 0.0f;
-			mSpinner2.position = 1.0f;
+			mSpinner2.position = 0.0f;
 
 			mSpinner3 = new ScrollingImageSet(mBackgroundImage,
 					new Bitmap[] { mSpinApple.mBitmap, mSpinBanana.mBitmap,
 							mSpinCherries.mBitmap, mSpinDollar.mBitmap,
 							mSpinHeart.mBitmap, mSpinMusic.mBitmap,
 							mSpinStar.mBitmap }, 300, 40,
-					mSpinApple.mBitmap.getHeight() * 5, new int[] { 6, 5, 4, 3, 2, 1, 0});
+					mSpinApple.mBitmap.getHeight() * 5, new int[] { 4, 2, 6, 1, 3, 5, 0});
 
 			mSpinner3.acceleration = 0.0f;
 			mSpinner3.speed = 0.0f;
-			mSpinner3.position = 2.0f;
+			mSpinner3.position = 0.0f;
+			
+			mAllSpinners = new ScrollingImageSet [] {mSpinner1, mSpinner2, mSpinner3};
 		}
 
 		/*
@@ -263,8 +294,10 @@ public class PaperBandit extends WallpaperService {
 		 * later
 		 */
 		@Override
-		public void onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		public void onTouchEvent(MotionEvent event)
+		{
+			if (event.getAction() == MotionEvent.ACTION_DOWN)
+			{
 				mTouchX = event.getX();
 				mTouchY = event.getY();
 
@@ -277,42 +310,34 @@ public class PaperBandit extends WallpaperService {
 				// mFrameDollar.mTop + ":" + mFrameDollar.mWidth + ":" +
 				// mFrameDollar.mHeight);
 
-				switch (whichButton) {
-				case 0:
-					mButtonToShow = mFrameDollar;
-					drawFrame();
-					// Dollar bill clicked
-					Toast.makeText(getApplicationContext(),
-							"Dollar bill clicked", Toast.LENGTH_LONG);
+				if ((state == BanditState.WAITING) || (state == BanditState.WINNINGS))
+				{
+					switch (whichButton) {
+					case 0:
+						//Dollar bill clicked
+						mButtonToShow = mFrameDollar;
+						bet = WinCalculator.MEDIUM_BET;
+						break;
+					case 1:
+						mButtonToShow = mFrameMaxBet;
+						bet = WinCalculator.MAX_BET;
+						break;
+					default:
+						mButtonToShow = null;
+						bet = WinCalculator.SMALL_BET;
+					}
 					
-					mSpinner1.speed = 0.7f;
+					mSpinner1.speed = 0.7f + (float)Math.random() / 4;
 					mSpinner1.acceleration = -0.01f;
 					
-					mSpinner2.speed = 0.6f;
+					mSpinner2.speed = 0.6f + (float)Math.random() / 4;
 					mSpinner2.acceleration = -0.01f;
 					
-					mSpinner3.speed = 0.5f;
+					mSpinner3.speed = 0.5f + (float)Math.random() / 4;
 					mSpinner3.acceleration = -0.01f;
 					
-					
-					break;
-				case 1:
-					mButtonToShow = mFrameMaxBet;
-					drawFrame();
-					Toast.makeText(getApplicationContext(), "Max bet clicked",
-							Toast.LENGTH_LONG);
-					// Max bet clicked
-					break;
-				default:
-					mButtonToShow = null;
-					drawFrame();
-					Toast.makeText(getApplicationContext(), "Frame clicked",
-							Toast.LENGTH_LONG);
-					// Somewhere else clicked
+					state = BanditState.SPINNING;
 				}
-			} else {
-				mTouchX = -1;
-				mTouchY = -1;
 			}
 			super.onTouchEvent(event);
 		}
@@ -335,15 +360,70 @@ public class PaperBandit extends WallpaperService {
 					// Draw paper
 					mBackgroundImage.draw(c);
 					
-					mSpinner1.move_to_stop (1f);
-					mSpinner2.move_to_stop (1f);
-					mSpinner3.move_to_stop (1f);
-					mSpinner1.draw(c);
-					mSpinner2.draw(c);
-					mSpinner3.draw(c);
-
-					mFrameNormal.draw(c);
+					Log.d ("PaperBandit", "State:" + state.toString());
 					
+					if (state == BanditState.WAITING)
+					{
+						mButtonToShow = null;
+						mSpinner1.draw(c);
+						mSpinner2.draw(c);
+						mSpinner3.draw(c);
+						
+						mFrameNormal.draw(c);
+					} else if (state == BanditState.SPINNING)
+					{
+						mSpinner1.move_to_stop (1f);
+						mSpinner2.move_to_stop (1f);
+						mSpinner3.move_to_stop (1f);
+						mSpinner1.draw(c);
+						mSpinner2.draw(c);
+						mSpinner3.draw(c);
+						
+						//All spinners have just stopped - do winnings
+						if (mSpinner1.is_stopped() && mSpinner2.is_stopped() && mSpinner3.is_stopped())
+						{
+							winnings = WinCalculator.GetWins(mAllSpinners, bet);
+							if (winnings == 0)
+							{
+								state = BanditState.WAITING;
+							} else
+							{
+								win_flash_counter = FLASH_TOTAL_FRAMES;
+								state = BanditState.WINNINGS;
+							}
+						}
+						
+						mFrameNormal.draw(c);
+					} else if (state == BanditState.WINNINGS)
+					{
+						Log.d ("PaperBandit", "WIN" + winnings);
+						
+						mSpinner1.draw(c);
+						mSpinner2.draw(c);
+						mSpinner3.draw(c);
+						
+						--win_flash_counter;
+						if (win_flash_counter == 0)
+						{
+							state = BanditState.WAITING;
+						} else
+						{
+							if ((win_flash_counter % (FLASH_FRAMES_ON + FLASH_FRAMES_OFF)) < FLASH_FRAMES_ON) 
+							{
+								if ((winnings & WinCalculator.TOP_ROW) > 0) mWin1.draw(c);
+								if ((winnings & WinCalculator.MIDDLE_ROW) > 0) mWin2.draw(c);
+								if ((winnings & WinCalculator.BOTTOM_ROW) > 0) mWin4.draw(c);
+								if ((winnings & WinCalculator.FWD_DIAGONAL) > 0) mWin8.draw(c);
+								if ((winnings & WinCalculator.BACK_DIAGONAL) > 0) mWin16.draw(c);
+								mFrameWin.draw(c);
+							} else
+							{
+								mFrameNormal.draw(c);
+							}
+						}
+						
+					}
+
 					if (mButtonToShow != null) {
 						mButtonToShow.draw(c);
 					}
