@@ -15,34 +15,47 @@
 ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
-*/
+*/
 -->
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="za.co.appceptional.android.paperbandit">
+<manifest package="za.co.appceptional.android.paperbandit" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-sdk android:minSdkVersion="7" />
+
     <uses-feature android:name="android.software.live_wallpaper" />
 
     <application
-        android:label="@string/wallpapers"
-        android:icon="@drawable/ic_launcher_wallpaper">
-
+        android:icon="@drawable/icon"
+        android:label="@string/wallpapers" >
         <service
-            android:label="@string/wallpaper_name"
             android:name="za.co.appceptional.android.paperbandit.PaperBandit"
-            android:permission="android.permission.BIND_WALLPAPER">
+            android:label="@string/wallpaper_name"
+            android:icon="@drawable/icon"
+            android:permission="android.permission.BIND_WALLPAPER" >
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
             </intent-filter>
-            <meta-data android:name="android.service.wallpaper" android:resource="@xml/paperbandit" />
-        </service>
-        <activity
-            android:label="@string/paperbandit_settings"
-            android:name="za.co.appceptional.android.paperbandit.PaperBanditSettings"
-            android:theme="@android:style/Theme.Light.WallpaperSettings"
-            android:exported="true">
-        </activity>
 
-    </application>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/paperbandit" />
+        </service>
+
+        <activity
+            android:name="za.co.appceptional.android.paperbandit.PaperBanditSettings"
+            android:exported="true"
+            android:label="@string/paperbandit_settings"
+            android:theme="@android:style/Theme.Light.WallpaperSettings" >
+        </activity>
+        <activity
+            android:name="za.co.appceptional.android.paperbandit.OpenActivity"
+            android:exported="true"
+            android:label="Appceptional Paper Bandit"
+            android:theme="@android:style/Theme.Light.WallpaperSettings" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.INFO" />
+            </intent-filter>
+        </activity>
+	</application>
 </manifest>
